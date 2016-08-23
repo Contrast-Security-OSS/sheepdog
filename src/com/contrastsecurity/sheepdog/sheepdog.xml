@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<!-- THIS IS A CONCEPT ONLY, NEVER IMPLEMENTED -->
+
+<sheepdog>
+	<!-- sample appname and container
+		WebGoat          glassfish4
+		WebGoat          jboss7
+		OracleFS         jetty8
+		OracleFS         weblogic11 
+		JSPWiki          tomcat6 
+		EnterpriseTPS    websphere8.5
+		Liferay          tomcat8 
+		Aneritx          weblogic9
+	 -->
+	<server name="DEV-0001" container="glassfish4" appname="WebGoat" path="/WebGoat" port="8080" ajp="8090" />
+	<server name="TEST-0002" container="tomcat8" appname="WebGoat" path="/WebGoat" port="9080" ajp="9090" />
+	<server name="PROD-0003" container="weblogic11" appname="WebGoat" path="/WebGoat" port="10080" ajp="10090" />
+
+	<!--
+	Probes and attacks happen randomly every hour
+	-->
+	<probe target="DEV-0001" duration="continuous" speed="medium" source="one" />
+	<probe target="TEST-0002" duration="short" speed="fast" source="range" />
+	<probe target="PROD-0003" duration="short" speed="slow" ip="range" />
+
+	<attack target="DEV-0001" duration="short" speed="fast" ip="one" />
+	<attack target="TEST-0002" duration="continuous" speed="slow" ip="range" />
+	<attack target="TEST-0002" duration="continuous" speed="slow" ip="range" />
+	<attack target="PROD-0003" duration="short" speed="fast" ip="range" />
+	<attack target="PROD-0003" duration="short" speed="fast" ip="range" />
+
+</sheepdog>
