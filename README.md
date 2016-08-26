@@ -1,6 +1,8 @@
 Sheepdog
 ========
 
+![Image of SheepDogCat](http://contrast-security-oss.github.io/meow/images/sheepdog-cat.png =200x)
+
 Sheepdog is a simple tool to generate normal and attack traffic for OWASP WebGoat. It can be used with security technologies like WAF and RASP in demonstrations and to verify that they are doing a tiny piece of what they are supposed to do. Sheepdog is not intended to be an exhaustive set of security tests. It has some basic SQL injection, XSS, path traversal, and that kind of thing.
 
 Simply start WebGoat with:
