@@ -15,6 +15,9 @@ Then in another window start sheepdog with:
 
 There are several configurable properties that you can use to simulate a variety of crawls/attacks.
 
+> Usage: java -jar sheepdog.jar #threads #durationMins #ratePerMin #attackPercent port
+
+
 # Features:
 * Configurable number of attack threads
 * Configurable overall duration
