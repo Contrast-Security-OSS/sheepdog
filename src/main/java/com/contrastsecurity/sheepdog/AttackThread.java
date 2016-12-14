@@ -85,41 +85,34 @@ public class AttackThread extends Thread {
     
     public void run() {
         long start = System.currentTimeMillis();
-        while( System.currentTimeMillis() - start < scanDuration * 60 * 1000 ) {
+        while( System.currentTimeMillis() - start < scanDuration * 1000 ) {
             try {
                 long delay = this.requestDelay != -1 ? this.requestDelay : RANDOM.nextInt(1000);
-                Thread.sleep( delay );
+                if(delay > 0) {
+                	Thread.sleep( delay );
+                }
                 String page = lessons.get( RANDOM.nextInt( lessons.size() ) );
-                // http://localhost:8080/WebGoat/attack?Screen=308&menu=1100&stage=3
                 String[] parts = page.split( "/" );
                 String lesson = "attack?Screen=" + parts[1] + "&menu=" + parts[2];
                 if ( parts.length > 3 ) {
                     lesson += "&stage=" + parts[3];
                 }
                 String form = sendGet( lesson, false );
-                
                 scan( lesson, form, attackPercent );
-               
-                // System.out.println(">>>>>>>>" + cookieStore.getCookies());
-                
             } catch( Exception e ) {
-                System.err.println( "ERROR: " + e.getMessage() );
                 e.printStackTrace();
             }
         }
     }
-
-
+    
     private void scan(String lesson, String form, int attackPercent ) throws Exception {
         List<NameValuePair> fields = parseForm( form );
         boolean attack = RANDOM.nextBoolean();
         permute( fields, attack, attackPercent );
         sendPost( lesson, fields );
     }
-
     
-    
-    private static void permute(List<NameValuePair> fields, boolean attack, int attackPercent ) {
+    private void permute(List<NameValuePair> fields, boolean attack, int attackPercent ) {
         for ( int i=0; i<fields.size(); i++ ) {
             NameValuePair field = fields.get( i );
             String value = field.getValue();
