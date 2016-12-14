@@ -29,6 +29,7 @@ public class Sheepdog {
         
         Options options = new Options();
         options.addOption("t", true, "number of concurrent threads");
+        options.addOption("o", true, "output file");
         options.addOption("s", true, "duration (seconds)");
         options.addOption("d", true, "delay (milliseconds, -1 for random delay)");
         options.addOption("a", true, "attack percentage (0-100)");
