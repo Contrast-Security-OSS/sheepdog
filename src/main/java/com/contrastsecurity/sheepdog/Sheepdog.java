@@ -117,7 +117,7 @@ public class Sheepdog {
 		try {
 			rc = Integer.parseInt(cmd.getOptionValue(flag));
 		} catch (Exception e) {
-			System.err.println("Unknown value for flag '" + flag + "', using " + defaultValue);
+			System.err.println("Using default value for flag '" + flag + "', using " + defaultValue);
 		}
 		return rc;
 	}
