@@ -208,7 +208,19 @@ public class AttackThread extends Thread {
 			lowest = elapsed;
 		}
 	}
-
+    
+    public long getTotalScanTime() {
+		return totalScanTime;
+	}
+    
+    public int getRequestCount() {
+		return requestCount;
+	}
+    
+    private static String getAttack() {
+        return FRAGS[ RANDOM.nextInt(FRAGS.length) ];
+    }
+    
 	private static List<NameValuePair> parseForm( String content ) {
         List<NameValuePair> fields = new ArrayList<NameValuePair>();
         int formStart = content.indexOf( "<form" );
@@ -274,9 +286,9 @@ public class AttackThread extends Thread {
         }
         return sb.toString();
     }
- 
-
-    private static String[] frags = {
+    
+    private static SecureRandom RANDOM = new SecureRandom();
+    private static String[] FRAGS = {
         "' onmouseover='alert(" + getToken() + ")",
         "\" onmouseover=\"alert(" + getToken() + ")",
         "' or 112=112--",
@@ -286,18 +298,4 @@ public class AttackThread extends Thread {
         "../../../../../foo.bar%00",
         "..\\..\\..\\..\\..\\etc\\passwd"
     };
-    
-    public long getTotalScanTime() {
-		return totalScanTime;
-	}
-    
-    public int getRequestCount() {
-		return requestCount;
-	}
-    
-    private static String getAttack() {
-        return frags[ RANDOM.nextInt(frags.length) ];
-    }
-    
-    private static SecureRandom RANDOM = new SecureRandom();    
 }
