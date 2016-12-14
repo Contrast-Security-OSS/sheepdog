@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -22,39 +23,45 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-
 public class AttackThread extends Thread {
 
-    private CloseableHttpClient httpclient = null;
-    private CookieStore cookieStore = null;
-
-    private String baseUrl = "http://localhost:8080/WebGoat/";
+    private CloseableHttpClient httpclient;
+    private CookieStore cookieStore;
+    private StopWatch watch;
     
-    private String address = "192.168.100.100";
+    /* Scan settings */
+    private String baseUrl;
+    private String address;
+    private List<String> lessons;
+    private int scanDuration;
+    private int attackPercent;
+    private long requestDelay;
+	private boolean verbose;
 	
-    private static SecureRandom sr = new SecureRandom();
-
-    private List<String> lessons = null;
-    
-    private int scanDuration = 40;
-    private int scanRate = 40;
-    private int attackPercent = 50;
-
-    public AttackThread( String baseUrl, String address, int scanDuration, int scanRate, int attackPercent ) {
+	/* Statistics */
+	private int requestCount;
+	private long totalScanTime;
+	private double highest;
+	private double lowest;
+	
+    public AttackThread( String baseUrl, String address, int scanDuration, long requestDelay, int attackPercent, boolean verbose ) {
         this.baseUrl = baseUrl;
         this.address = address;
         this.scanDuration = scanDuration;
-        this.scanRate = scanRate;
+        this.requestDelay = requestDelay;
         this.attackPercent = attackPercent;
-
+        this.verbose = verbose;
+        
+        this.highest = -1;
+        this.lowest = -1;
+        
+        this.watch = new StopWatch();
+        		
         try {
-       
             cookieStore = new BasicCookieStore();
-            
             RequestConfig globalConfig = RequestConfig.custom()
                     .setCookieSpec(CookieSpecs.DEFAULT)
                     .build();
-            
             httpclient = HttpClients.custom()
                     .setDefaultCookieStore(cookieStore)
                     .setDefaultRequestConfig(globalConfig)
@@ -76,14 +83,13 @@ public class AttackThread extends Thread {
         }
     }
     
-
     public void run() {
         long start = System.currentTimeMillis();
         while( System.currentTimeMillis() - start < scanDuration * 60 * 1000 ) {
             try {
-                long delay = sr.nextInt(( 60 / scanRate ) * 1000);
+                long delay = this.requestDelay != -1 ? this.requestDelay : RANDOM.nextInt(1000);
                 Thread.sleep( delay );
-                String page = lessons.get( sr.nextInt( lessons.size() ) );
+                String page = lessons.get( RANDOM.nextInt( lessons.size() ) );
                 // http://localhost:8080/WebGoat/attack?Screen=308&menu=1100&stage=3
                 String[] parts = page.split( "/" );
                 String lesson = "attack?Screen=" + parts[1] + "&menu=" + parts[2];
@@ -91,6 +97,7 @@ public class AttackThread extends Thread {
                     lesson += "&stage=" + parts[3];
                 }
                 String form = sendGet( lesson, false );
+                
                 scan( lesson, form, attackPercent );
                
                 // System.out.println(">>>>>>>>" + cookieStore.getCookies());
@@ -105,7 +112,7 @@ public class AttackThread extends Thread {
 
     private void scan(String lesson, String form, int attackPercent ) throws Exception {
         List<NameValuePair> fields = parseForm( form );
-        boolean attack = sr.nextBoolean();
+        boolean attack = RANDOM.nextBoolean();
         permute( fields, attack, attackPercent );
         sendPost( lesson, fields );
     }
@@ -118,7 +125,7 @@ public class AttackThread extends Thread {
             String value = field.getValue();
             String newValue = value;
             newValue = getToken();
-            if ( sr.nextInt( 100 ) < attackPercent ) {
+            if ( RANDOM.nextInt( 100 ) < attackPercent ) {
                 newValue = getAttack();
             }
             NameValuePair newField = new BasicNameValuePair( field.getName(), newValue );
@@ -128,12 +135,14 @@ public class AttackThread extends Thread {
 
 
     // "link": "#attack/3821/2000"
-    private static List<String> parseLessons(String lessons) {
+    private List<String> parseLessons(String lessons) {
         List<String> allMatches = new ArrayList<String>();
         Matcher m = Pattern.compile("#(attack.*?)\"").matcher(lessons);
         while (m.find()) {
             String page = m.group();
-            System.out.println(">>>>" + page );
+            if(verbose) {
+            	System.out.println(">>>>" + page );
+            }
             allMatches.add(page.substring(1,page.length()-1));
         } 
         return allMatches;
@@ -148,9 +157,16 @@ public class AttackThread extends Thread {
         if ( xhr ) {
             httpGet.addHeader("X-Requested-With","XMLHttpRequest");
         }
+        watch.reset();
+        watch.start();
         CloseableHttpResponse response = httpclient.execute(httpGet);
         HttpEntity entity = response.getEntity();
         String content = EntityUtils.toString(entity);
+        watch.stop();
+        long elapsed = watch.getTime();
+        checkHighestLowest(elapsed);
+		this.totalScanTime += elapsed;
+        this.requestCount++;
         response.close();
         return content;
     }
@@ -160,21 +176,40 @@ public class AttackThread extends Thread {
     public String sendPost(String url, List<NameValuePair> fields ) throws Exception {
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(fields, Consts.UTF_8);
         HttpPost httpPost = new HttpPost(baseUrl + url);
-        System.out.println( "POST from " + address + " to " + httpPost.getURI() );
-        System.out.println( "   " + fields );
+        if(verbose) {
+	        System.out.println( "POST from " + address + " to " + httpPost.getURI() );
+	        System.out.println( "   " + fields );
+        }
         httpPost.addHeader("X-Forwarded-For", address );
         httpPost.setEntity(entity);
+        
+        watch.reset();
+        watch.start();
         CloseableHttpResponse response = httpclient.execute(httpPost);
         String content = EntityUtils.toString(response.getEntity());
+        watch.stop();
+        long elapsed = watch.getTime();
+        checkHighestLowest(elapsed);
+		totalScanTime += elapsed;
         response.close();
-        System.out.println( "   " + response.getStatusLine() );
-        // System.out.println( "   " + content.replaceAll("[\r\n]", "" ) );
-        System.out.println();
+        if(verbose) {
+	        System.out.println( "   " + response.getStatusLine() );
+	        System.out.println();
+        }
+        requestCount++;
         return content;
     }
-
     
-    private static List<NameValuePair> parseForm( String content ) {
+    private void checkHighestLowest(long elapsed) {
+		if(highest == -1 || elapsed > highest) {
+			highest = elapsed;
+		}
+		if(lowest == -1 || elapsed < lowest) {
+			lowest = elapsed;
+		}
+	}
+
+	private static List<NameValuePair> parseForm( String content ) {
         List<NameValuePair> fields = new ArrayList<NameValuePair>();
         int formStart = content.indexOf( "<form" );
         int formStop = content.indexOf( "</form>" );
@@ -232,10 +267,10 @@ public class AttackThread extends Thread {
     private static String getToken() {
         StringBuilder sb = new StringBuilder();
         for ( int i = 0; i < 5; i++ ) {
-            sb.append( (char)(sr.nextInt(26) +'a' ) ); 
+            sb.append( (char)(RANDOM.nextInt(26) +'a' ) ); 
         }
         for ( int i = 0; i< 3; i++ ) {
-            sb.append( (char)(sr.nextInt(10) + '0' ) );
+            sb.append( (char)(RANDOM.nextInt(10) + '0' ) );
         }
         return sb.toString();
     }
@@ -252,10 +287,17 @@ public class AttackThread extends Thread {
         "..\\..\\..\\..\\..\\etc\\passwd"
     };
     
-    private static String getAttack() {
-        return frags[ sr.nextInt(frags.length) ];
-    }
-
-
+    public long getTotalScanTime() {
+		return totalScanTime;
+	}
     
+    public int getRequestCount() {
+		return requestCount;
+	}
+    
+    private static String getAttack() {
+        return frags[ RANDOM.nextInt(frags.length) ];
+    }
+    
+    private static SecureRandom RANDOM = new SecureRandom();    
 }
