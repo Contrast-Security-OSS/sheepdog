@@ -78,4 +78,4 @@ There are several configurable properties that you can use to simulate a variety
 ## Who made this?
 This project is sponsored by [Contrast Security](http://www.contrastsecurity.com/) and released under the MIT license.
 
-![Contrast Security Logo](http://cdn2.hubspot.net/hub/203759/file-2275798868-png/theme/Contrast-logo-transparent.png "Contrast Logo")
+![Contrast Security Logo](https://www.contrastsecurity.com/hs-fs/hubfs/Contrast_Security-2016/Image/LOGOContrastSec.SVG.svg?t=1488557782361&width=199&name=LOGOContrastSec.SVG.svg "Contrast Logo")
