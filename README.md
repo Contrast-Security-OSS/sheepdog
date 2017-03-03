@@ -13,31 +13,29 @@ Then in another window start sheepdog with:
 
 > java -jar sheepdog-1.0.jar
 
-There are several configurable properties that you can use to simulate a variety of crawls/attacks.
+There are several configurable properties that you can use to simulate a variety of crawls/attacks. Note that SheepDog sends an X-Forwarded-For header with random IP address for each attack thread.
 
-> Usage: java -jar sheepdog.jar #threads #durationMins #ratePerMin #attackPercent port
+> Usage: java -jar sheepdog.jar
+   -t threads (default 3)
+   -s seconds (default 60)
+   -d delay milliseconds between requests (default -1)
+   -a attack percentage (default 50)
+   -p port for WebGoat (default 8080)
 
-
-# Features:
-* Configurable number of attack threads
-* Configurable overall duration
-* Configurable request rate per attack thread
-* Configurable percentage of requests which contain attacks
-* Configurable port for WebGoat
-* Uses X-Forwarded-For header with random IP address for each attack thread
 
 
 ## Sample usage
 
-	$ java -jar sheepdog-1.0-SNAPSHOT.jar 3 120 5 80
-	Usage: java -jar sheepdog.jar #threads #durationMins #ratePerMin #attackPercent port
-	Starting 3 attack threads, each with:
-	  120 minute duration
-	  5 requests per minute
-	  80% attack parameters
-	  target: http://localhost:8080/WebGoat/
-	
-	  Starting AttackThread (238.20.254.102)
+	$ java -jar target/sheepdog-1.0-SNAPSHOT.jar -t 3 -s 3600 -d 1000 -a 50
+        Usage: java -jar sheepdog.jar [-t -s -d -a -p -v]
+        Using default value for flag 'p', using 8080
+        Starting 3 attack threads, each with:
+          3600 seconds
+          1000ms delay between requests
+          50% attack parameters
+          target: http://localhost:8080/WebGoat/
+
+          Starting AttackThread (110.104.52.59) 
 	  Starting AttackThread (93.65.24.224)
 	  Starting AttackThread (161.144.64.146)
 	
