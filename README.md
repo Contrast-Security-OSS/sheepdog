@@ -16,18 +16,18 @@ Then in another window start sheepdog with:
 There are several configurable properties that you can use to simulate a variety of crawls/attacks. Note that SheepDog sends an X-Forwarded-For header with random IP address for each attack thread.
 
 > Usage: java -jar sheepdog.jar
-
-   -t threads (default 3)
-
-   -s seconds (default 60)
-
-   -d delay milliseconds between requests (default -1)
-
-   -a attack percentage (default 50)
-
-   -p port for WebGoat (default 8080)
-
-   -v verbose
+>
+>   -t threads (default 3)
+>
+>   -s seconds (default 60)
+>
+>   -d delay milliseconds between requests (default -1)
+>
+>   -a attack percentage (default 50)
+>
+>   -p port for WebGoat (default 8080)
+>
+>   -v verbose
 
 
 ## Sample usage
