@@ -1,0 +1,16 @@
+---
+
+  - name: Cleanup WebGoat7 and Sheepdog
+    hosts: localhost
+    gather_facts: false
+    vars:
+      wg7_destination: ~/webgoat7
+    tasks:
+      - name: Remove Webgoat7 destination directory if it exists
+        file:
+          path: '{{wg7_destination}}'
+          state: absent
+      - name: Remove cron job for WebGoat7 attack
+        cron:
+          name: "Attack WwebGoat7"
+          state: absent

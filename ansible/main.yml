@@ -1,0 +1,36 @@
+---
+  - name: WebGoat7 Demo With Sheepdog
+    hosts: localhost
+    vars:
+      wg7_destination: ~/webgoat7
+    gather_facts: false
+    tasks:
+      - name: Create Webgoat7 destination directory if it does not exist
+        file:
+          path: '{{wg7_destination}}'
+          state: directory
+          mode: 0755
+      - name: Deploy script files
+        block:
+          - name: Deploy attack.sh
+            copy:
+              src: '{{item}}'
+              dest: '{{wg7_destination}}'
+              mode: 0755
+            with_items:
+              - attack.sh
+              - webgoat.sh
+          - name: Deploy sheepdog container
+            copy:
+              src: ../dist/sheepdog-1.0-SNAPSHOT.jar
+              dest: '{{wg7_destination}}'
+      - name: Download webgoat
+        get_url:
+          url: https://github.com/WebGoat/WebGoat/releases/download/7.0.1/webgoat-container-7.0.1-war-exec.jar
+          dest: '{{wg7_destination}}'
+      # - name: Setup cron job
+      #   cron:
+      #     name: "Attack WwebGoat7"
+      #     minute: "0"
+      #     hour: "0"
+      #     job: "{{wg7_destination}}/attack.sh"
