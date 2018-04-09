@@ -4,6 +4,15 @@
     vars:
       wg7_destination: ~/webgoat7
       contrast_jar: ~/Downloads
+
+      contrast_api_key: [api_key]
+      contrast_service_key: [service_key]
+      contrast_username: [username or email]
+      contrast_teamserver_url: https://eval.contrastsecurity.com
+      contrast_teamserver_organization: [orgUuid]
+
+      contrast_agent_type: java?jvm=1_6
+
     gather_facts: false
     tasks:
       - name: Create Webgoat7 destination directory if it does not exist
@@ -32,10 +41,19 @@
         copy:
           src: webgoat-container-7.0.1-war-exec.jar
           dest: '{{wg7_destination}}'
-      - name: Deploy contrast.jar file from contrast_jar directory
-        copy:
-          src: '{{contrast_jar}}/contrast.jar'
-          dest: '{{wg7_destination}}'
+
+
+      #Download contrast.jar file from Teamserver
+      - name: Create Authorization
+        set_fact:
+          contrast_authorization_key: "{{ contrast_username }}:{{ contrast_service_key }}"
+
+      - name: Download Agent from TeamServer
+        get_url:
+          url: "{{ contrast_teamserver_url }}/Contrast/api/ng/{{ contrast_teamserver_organization }}/agents/default/{{ contrast_agent_type }}"
+          dest: "{{wg7_destination}}/contrast.jar"
+          headers: 'Accept:application/json,API-Key:{{ contrast_api_key }},Authorization:{{ contrast_authorization_key | b64encode }}'
+
       # - name: Setup cron job
       #   cron:
       #     name: "Attack WwebGoat7"
