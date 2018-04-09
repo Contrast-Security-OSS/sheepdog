@@ -11,20 +11,11 @@ function ctrl_c() {
 }
 
 function webgoat {
-java -javaagent:contrast.jar \
--Dcontrast.dir=working \
--Dcontrast.override.appname="$app" \
--Dcontrast.path="/$path" \
--Dcontrast.server="$server" \
--Dcontrast.log.daily=true \
--Dcontrast.level=info \
--jar webgoat-container-7.0.1-war-exec.jar \
-> /dev/null 2>&1 &
+java -javaagent:contrast.jar -Dcontrast.dir=working -Dcontrast.override.appname="$app" -Dcontrast.path="/$path" -Dcontrast.server="$server" -Dcontrast.log.daily=true -Dcontrast.level=info -jar webgoat-container-7.0.1-war-exec.jar > /dev/null 2>&1 &
 }
 
 function sheepdog {
-#java -jar sheepdog-1.0-SNAPSHOT.jar -t 2 -s 3600 -d 1500 250 -a 90 > /dev/null 2>&1 &
-java -jar sheepdog-1.0-SNAPSHOT.jar -t 2 -s 3600 -d 1500 250 -a 90 &
+java -jar sheepdog-1.0-SNAPSHOT.jar -t 2 -s 3600 -d 1500 250 -a 90 > /dev/null 2>&1 &
 
 }
 

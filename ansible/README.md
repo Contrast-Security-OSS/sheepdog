@@ -15,12 +15,7 @@ $ git clone git@github.com:Contrast-Security-OSS/sheepdog.git
 $ ansible-playbook ./sheepdog/ansible/main.yml
 ```
 
-### 3. Copy your contrast.jar file to the installation directory
-```
-$ cp /path/to/contrast.jar ~/webgoat7
-```
-
-### 4. Execute attack.sh
+### 3. Execute attack.sh
 ```
 $ cd ~/webgoat7
 $ ./attack.sh

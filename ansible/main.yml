@@ -3,6 +3,7 @@
     hosts: localhost
     vars:
       wg7_destination: ~/webgoat7
+      contrast_jar: ~/Downloads
     gather_facts: false
     tasks:
       - name: Create Webgoat7 destination directory if it does not exist
@@ -10,23 +11,30 @@
           path: '{{wg7_destination}}'
           state: directory
           mode: 0755
-      - name: Deploy script files
-        block:
-          - name: Deploy attack.sh
-            copy:
-              src: '{{item}}'
-              dest: '{{wg7_destination}}'
-              mode: 0755
-            with_items:
-              - attack.sh
-              - webgoat.sh
-          - name: Deploy sheepdog container
-            copy:
-              src: ../dist/sheepdog-1.0-SNAPSHOT.jar
-              dest: '{{wg7_destination}}'
-      - name: Download webgoat
-        get_url:
-          url: https://github.com/WebGoat/WebGoat/releases/download/7.0.1/webgoat-container-7.0.1-war-exec.jar
+      - name: Deploy attack.sh & webgoat.sh
+        copy:
+          src: '{{item}}'
+          dest: '{{wg7_destination}}'
+          mode: 0755
+        with_items:
+          - attack.sh
+          - webgoat.sh
+      - name: Deploy sheepdog container
+        copy:
+          src: ../dist/sheepdog-1.0-SNAPSHOT.jar
+          dest: '{{wg7_destination}}'
+      - name: Copy webgoat container from our local source
+        # get_url:
+        #   url: https://github.com/WebGoat/WebGoat/releases/download/7.0.1/webgoat-container-7.0.1-war-exec.jar
+        # Changed this to include the file contained herein as the md5 of the static jar vs. the one in github are differeht.
+        # Changed by Vihar on Apr 9.
+        # Working with Jeff to determine pkgdiff between the two snapshots.
+        copy:
+          src: webgoat-container-7.0.1-war-exec.jar
+          dest: '{{wg7_destination}}'
+      - name: Deploy contrast.jar file from contrast_jar directory
+        copy:
+          src: '{{contrast_jar}}/contrast.jar'
           dest: '{{wg7_destination}}'
       # - name: Setup cron job
       #   cron:
