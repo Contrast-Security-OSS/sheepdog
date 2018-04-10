@@ -3,18 +3,25 @@
     hosts: localhost
     vars:
       wg7_destination: ~/webgoat7
-      contrast_jar: ~/Downloads
-
-      contrast_api_key: [api_key]
-      contrast_service_key: [service_key]
-      contrast_username: [username or email]
-      contrast_teamserver_url: https://eval.contrastsecurity.com
-      contrast_teamserver_organization: [orgUuid]
-
-      contrast_agent_type: java?jvm=1_6
+      agent_type: java
 
     gather_facts: false
     tasks:
+      - name: Include vars from .contrast.cfg
+      # You must have a file in your home directory called .contrast.cfg with
+      # the following contents:
+      # username: Your username or email address
+      # service_key: Your service key
+      # teamserver_url: The TeamServer URL
+      # teamserver_organization: Your TeamServer OrgUuid
+      # api_key: Your API Key
+      # agent_username: Your Agent Name
+      # agent_type: The Agent Type you wish to download.
+      # agent_service_key: Your agent service key
+        include_vars:
+          file: ~/.contrast.cfg
+          name: contrast
+
       - name: Create Webgoat7 destination directory if it does not exist
         file:
           path: '{{wg7_destination}}'
@@ -46,13 +53,13 @@
       #Download contrast.jar file from Teamserver
       - name: Create Authorization
         set_fact:
-          contrast_authorization_key: "{{ contrast_username }}:{{ contrast_service_key }}"
+          authorization_key: "{{ contrast.username }}:{{ contrast.service_key }}"
 
       - name: Download Agent from TeamServer
         get_url:
-          url: "{{ contrast_teamserver_url }}/Contrast/api/ng/{{ contrast_teamserver_organization }}/agents/default/{{ contrast_agent_type }}"
+          url: "{{ contrast.teamserver_url }}/Contrast/api/ng/{{ contrast.teamserver_organization }}/agents/default/{{ agent_type }}"
           dest: "{{wg7_destination}}/contrast.jar"
-          headers: 'Accept:application/json,API-Key:{{ contrast_api_key }},Authorization:{{ contrast_authorization_key | b64encode }}'
+          headers: 'Accept:application/json,API-Key:{{ contrast.api_key }},Authorization:{{ authorization_key | b64encode }}'
 
       # - name: Setup cron job
       #   cron:
