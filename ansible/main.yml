@@ -5,19 +5,10 @@
       wg7_destination: ~/webgoat7
       agent_type: java
 
+    #@todo: gracefully fail if there is no file and produce a message.
     gather_facts: false
     tasks:
       - name: Include vars from .contrast.cfg
-      # You must have a file in your home directory called .contrast.cfg with
-      # the following contents:
-      # username: Your username or email address
-      # service_key: Your service key
-      # teamserver_url: The TeamServer URL
-      # teamserver_organization: Your TeamServer OrgUuid
-      # api_key: Your API Key
-      # agent_username: Your Agent Name
-      # agent_type: The Agent Type you wish to download.
-      # agent_service_key: Your agent service key
         include_vars:
           file: ~/.contrast.cfg
           name: contrast

@@ -15,17 +15,18 @@ java -javaagent:contrast.jar -Dcontrast.dir=working -Dcontrast.override.appname=
 }
 
 function sheepdog {
-java -jar sheepdog-1.0-SNAPSHOT.jar -t 2 -s 3600 -d 1500 250 -a 90 > /dev/null 2>&1 &
+java -jar sheepdog-1.0-SNAPSHOT.jar -t 3 -s 3600 -d 1500 250 -a 90 > /dev/null 2>&1 &
 
 }
 
 declare -a configs=(
-    "WebGoat7|DEV-42|TEST-113|STAGE-1002|PROD-1234"
-    "OracleFS|DEV-1382|TEST-2002|PROD-9190"
-    "JSPWiki|DEV-992|TEST-113|PROD-99"
-    "EnterpriseTPS|DEV-42|STAGE-1382|PROD-1234"
-    "Liferay|DEV-1382|STAGE-1002|PROD-9190"
-    "Anertix|DEV-992|TEST-2002|PROD-99" )
+    "WebGoat7|DEV-WG7|TEST-WG7|STAGE-WG7|PROD-WG7"
+    "OracleFS|DEV-OFS|TEST-OFS|PROD-OFS"
+    "CustomerCare|DEV-CCB|TEST-CCB|PROD-CCB"
+    "WebStore|DEV-WS|STAGE-WS|PROD-WS"
+    "MedicalRecords|DEV-EMR|STAGE-EMR|PROD-EMR"
+    "WebPOS|DEV-WPOS|STAGE-WPOS|PROD-WPOS"
+    "TradingFloor|DEV-TF|TEST-TF|PROD-TF" )
 
 for config in "${configs[@]}"
 do
@@ -40,6 +41,7 @@ do
         webgoat
         pid1=$!
         sleep 60
+        echo "Attacking $app on $server using $path"
         sheepdog
         pid2=$!
         sleep 120

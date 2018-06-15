@@ -2,33 +2,45 @@
 
 These two ansible playbooks automate the deployment and cleanup of Sheepdog and WebGoat7 to quickly setup a demo environment using the Contrast Security Secure DevOps Platform.
 
-**Note:** You must download and copy your contrast.jar file to the same directory where webgoat7 and sheepdog are installed. The default directory is ``` ~/webgoat7```.
-
 ## To use this playbook, follow the instructions below
 
-### 1. Clone this github repo.
+### Create a '~.contrast.jar file'
+The playbook relies on API credentials in this file.
+```
+username: [username]
+service_key: [service_key]
+teamserver_url: [teamserver_url]
+teamserver_organization: [teamserver_organization]
+teamserver_url: [teamserver_url]
+api_key: [api_key]
+agent_username: [agent_username]
+agent_service_key: [agent_service_key]
+```
+
+### Clone this github repo.
 ```
 $ git clone git@github.com:Contrast-Security-OSS/sheepdog.git
 ```
-### 2. Run the ansible playbook
+### Run the ansible playbook
 ```
 $ ansible-playbook ./sheepdog/ansible/main.yml
 ```
 
-### 3. Execute attack.sh
+### Execute attack.sh
+**Note:** ```attack.sh``` will take approximatley 30 minutes to run
+
 ```
 $ cd ~/webgoat7
 $ ./attack.sh
 ```
 
-**Note:** ```attack.sh``` will take approximatley 30 minutes to run
 
-## To start webgoat7 after ```attack.sh``` is finished
+### Demo: Start webgoat7 attack is done
 ```
 $ ./webgoat.sh
 ```
 
-## To cleanup
+## Cleanup
 ```
 ansible-playbook ./sheepdog/ansible/cleanup.yml
 ```
