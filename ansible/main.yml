@@ -3,31 +3,55 @@
     hosts: localhost
     vars:
       wg7_destination: ~/webgoat7
+      agent_type: java
+
+    #@todo: gracefully fail if there is no file and produce a message.
     gather_facts: false
     tasks:
+      - name: Include vars from .contrast.cfg
+        include_vars:
+          file: ~/.contrast.cfg
+          name: contrast
+
       - name: Create Webgoat7 destination directory if it does not exist
         file:
           path: '{{wg7_destination}}'
           state: directory
           mode: 0755
-      - name: Deploy script files
-        block:
-          - name: Deploy attack.sh
-            copy:
-              src: '{{item}}'
-              dest: '{{wg7_destination}}'
-              mode: 0755
-            with_items:
-              - attack.sh
-              - webgoat.sh
-          - name: Deploy sheepdog container
-            copy:
-              src: ../dist/sheepdog-1.0-SNAPSHOT.jar
-              dest: '{{wg7_destination}}'
-      - name: Download webgoat
-        get_url:
-          url: https://github.com/WebGoat/WebGoat/releases/download/7.0.1/webgoat-container-7.0.1-war-exec.jar
+      - name: Deploy attack.sh & webgoat.sh
+        copy:
+          src: '{{item}}'
           dest: '{{wg7_destination}}'
+          mode: 0755
+        with_items:
+          - attack.sh
+          - webgoat.sh
+      - name: Deploy sheepdog container
+        copy:
+          src: ../dist/sheepdog-1.0-SNAPSHOT.jar
+          dest: '{{wg7_destination}}'
+      - name: Copy webgoat container from our local source
+        # get_url:
+        #   url: https://github.com/WebGoat/WebGoat/releases/download/7.0.1/webgoat-container-7.0.1-war-exec.jar
+        # Changed this to include the file contained herein as the md5 of the static jar vs. the one in github are differeht.
+        # Changed by Vihar on Apr 9.
+        # Working with Jeff to determine pkgdiff between the two snapshots.
+        copy:
+          src: webgoat-container-7.0.1-war-exec.jar
+          dest: '{{wg7_destination}}'
+
+
+      #Download contrast.jar file from Teamserver
+      - name: Create Authorization
+        set_fact:
+          authorization_key: "{{ contrast.username }}:{{ contrast.service_key }}"
+
+      - name: Download Agent from TeamServer
+        get_url:
+          url: "{{ contrast.teamserver_url }}/Contrast/api/ng/{{ contrast.teamserver_organization }}/agents/default/{{ agent_type }}"
+          dest: "{{wg7_destination}}/contrast.jar"
+          headers: 'Accept:application/json,API-Key:{{ contrast.api_key }},Authorization:{{ authorization_key | b64encode }}'
+
       # - name: Setup cron job
       #   cron:
       #     name: "Attack WwebGoat7"
