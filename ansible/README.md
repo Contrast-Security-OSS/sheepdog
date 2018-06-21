@@ -43,6 +43,8 @@ $ ./attack.sh
 $ ./webgoat.sh
 ```
 
+Then browse to webgoat at http://localhost:8080/WebGoat/
+
 ## Cleanup
 ```
 ansible-playbook ./sheepdog/ansible/cleanup.yml
