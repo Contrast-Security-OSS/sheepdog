@@ -4,7 +4,7 @@ These two ansible playbooks automate the deployment and cleanup of Sheepdog and 
 
 ## To use this playbook, follow the instructions below
 
-### Create a '~.contrast.jar file'
+### Create a '~.contrast.cfg file'
 The playbook relies on API credentials in this file.
 ```
 username: [username]
@@ -13,6 +13,9 @@ teamserver_url: [teamserver_url]
 teamserver_organization: [teamserver_organization]
 teamserver_url: [teamserver_url]
 api_key: [api_key]
+
+#These might not be required for the playbook to work.
+#@todo Validate the need for these fields
 agent_username: [agent_username]
 agent_service_key: [agent_service_key]
 ```
