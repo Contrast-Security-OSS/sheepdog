@@ -5,12 +5,13 @@
     gather_facts: false
     vars:
       wg7_destination: ~/webgoat7
+      pc_destination: ~/spring-petclinic
+
     tasks:
       - name: Remove Webgoat7 destination directory if it exists
         file:
-          path: '{{wg7_destination}}'
+          path: '{{item}}'
           state: absent
-      - name: Remove cron job for WebGoat7 attack
-        cron:
-          name: "Attack WwebGoat7"
-          state: absent
+        with_items:
+          - "{{wg7_destination}}"
+          - "{{pc_destination}}"

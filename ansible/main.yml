@@ -3,7 +3,7 @@
     hosts: localhost
     vars:
       wg7_destination: ~/webgoat7
-      pc_destination: ~/pet_clinic
+      pc_destination: ~/spring-petclinic
       agent_type: java
 
     #@todo: gracefully fail if there is no file and produce a message.
@@ -45,6 +45,11 @@
           src: webgoat-container-7.0.1-war-exec.jar
           dest: '{{wg7_destination}}'
 
+      - name: Clone the pet_clinic repo
+        git:
+          repo: 'https://github.com/contrast-community/spring-petclinic'
+          dest: "{{pc_destination}}"
+          version: master
 
       #Download contrast.jar file from Teamserver
       - name: Create Authorization
