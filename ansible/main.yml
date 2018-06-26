@@ -1,8 +1,9 @@
 ---
-  - name: WebGoat7 Demo With Sheepdog
+  - name: WebGoat7 Demo With Sheepdog and Pet Clinic
     hosts: localhost
     vars:
       wg7_destination: ~/webgoat7
+      pc_destination: ~/pet_clinic
       agent_type: java
 
     #@todo: gracefully fail if there is no file and produce a message.
@@ -13,11 +14,15 @@
           file: ~/.contrast.cfg
           name: contrast
 
-      - name: Create Webgoat7 destination directory if it does not exist
+      - name: Create destination directories if they do not exist
         file:
-          path: '{{wg7_destination}}'
+          path: "{{item}}"
           state: directory
           mode: 0755
+        with_items:
+          - "{{wg7_destination}}"
+          - "{{pc_destination}}"
+
       - name: Deploy attack.sh & webgoat.sh
         copy:
           src: '{{item}}'
@@ -49,12 +54,8 @@
       - name: Download Agent from TeamServer
         get_url:
           url: "{{ contrast.teamserver_url }}/Contrast/api/ng/{{ contrast.teamserver_organization }}/agents/default/{{ agent_type }}"
-          dest: "{{wg7_destination}}/contrast.jar"
+          dest: "{{item}}/contrast.jar"
           headers: 'Accept:application/json,API-Key:{{ contrast.api_key }},Authorization:{{ authorization_key | b64encode }}'
-
-      # - name: Setup cron job
-      #   cron:
-      #     name: "Attack WwebGoat7"
-      #     minute: "0"
-      #     hour: "0"
-      #     job: "{{wg7_destination}}/attack.sh"
+        with_items:
+          - "{{wg7_destination}}"
+          - "{{pc_destination}}"
