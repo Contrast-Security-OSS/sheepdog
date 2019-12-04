@@ -72,7 +72,7 @@ public class AttackThread extends Thread {
             credentials.add(new BasicNameValuePair("username", "guest"));
             credentials.add(new BasicNameValuePair("password", "guest"));
 
-            sendPost( "j_spring_security_check", credentials );
+            sendPost( "login", credentials );
             sendGet( "welcome.mvc", false );
             
             String json = sendGet( "service/lessonmenu.mvc", false );        
