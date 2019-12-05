@@ -93,10 +93,7 @@ public class AttackThread extends Thread {
                 }
                 String page = lessons.get( RANDOM.nextInt( lessons.size() ) );
                 String[] parts = page.split( "/" );
-                String lesson = "attack?Screen=" + parts[1] + "&menu=" + parts[2];
-                if ( parts.length > 3 ) {
-                    lesson += "&stage=" + parts[3];
-                }
+                String lesson = parts[1] + ".lesson";
                 String form = sendGet( lesson, false );
                 scan( lesson, form, attackPercent );
             } catch( Exception e ) {
@@ -127,10 +124,10 @@ public class AttackThread extends Thread {
     }
 
 
-    // "link": "#attack/3821/2000"
+    // "link": "#lesson/3821/2000"
     private List<String> parseLessons(String lessons) {
         List<String> allMatches = new ArrayList<String>();
-        Matcher m = Pattern.compile("#(attack.*?)\"").matcher(lessons);
+        Matcher m = Pattern.compile("#(lesson.*?)\"").matcher(lessons);
         while (m.find()) {
             String page = m.group();
             if(verbose) {
