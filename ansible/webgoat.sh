@@ -1,1 +1,1 @@
-java -javaagent:contrast.jar -Dcontrast.path=~/webgoat7 -Dcontrast.dir=working -Dcontrast.server=PROD-DEMO -Dcontrast.server.activity.period=5000 -Dcontrast.log.daily=true -Dcontrast.level=info -jar webgoat-container-7.0.1-war-exec.jar
+java -javaagent:contrast.jar -Dcontrast.path=~/webgoat7 -Dcontrast.dir=working -Dcontrast.server=PROD-DEMO -Dcontrast.server.activity.period=5000 -Dcontrast.log.daily=true -jar webgoat-container-7.0.1-war-exec.jar -httpPort=8080
