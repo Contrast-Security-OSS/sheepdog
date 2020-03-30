@@ -18,13 +18,14 @@
           path: '{{wg7_destination}}'
           state: directory
           mode: 0755
-      - name: Deploy attack.sh & webgoat.sh
+      - name: Deploy scripts
         copy:
           src: '{{item}}'
           dest: '{{wg7_destination}}'
           mode: 0755
         with_items:
           - attack.sh
+          - crawl.sh
           - webgoat.sh
       - name: Deploy sheepdog container
         copy:
