@@ -1,5 +1,6 @@
 package com.contrastsecurity.sheepdog;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,11 @@ public class AttackThread extends Thread {
         this.lowest = -1;
         
         this.watch = new StopWatch();
-        		
+
+        List<NameValuePair> credentials = new ArrayList<NameValuePair>();
+        credentials.add(new BasicNameValuePair("username", "guest2"));
+        credentials.add(new BasicNameValuePair("password", "guest2"));
+
         try {
             cookieStore = new BasicCookieStore();
             RequestConfig globalConfig = RequestConfig.custom()
@@ -68,17 +73,16 @@ public class AttackThread extends Thread {
                     .build();
             
             // login and get list of lessons
-            List<NameValuePair> credentials = new ArrayList<NameValuePair>();
-            credentials.add(new BasicNameValuePair("username", "guest"));
-            credentials.add(new BasicNameValuePair("password", "guest"));
+            try {
+                sendPost( "login", credentials );
+            } catch (LoginException e) {
+                throw new RuntimeException(e);
+            }
 
-            sendPost( "j_spring_security_check", credentials );
-            sendGet( "welcome.mvc", false );
-            
             String json = sendGet( "service/lessonmenu.mvc", false );        
             lessons = parseLessons( json );
             
-        } catch (Exception e ) {
+        } catch (IOException e ) {
             e.printStackTrace();
         }
     }
@@ -93,10 +97,7 @@ public class AttackThread extends Thread {
                 }
                 String page = lessons.get( RANDOM.nextInt( lessons.size() ) );
                 String[] parts = page.split( "/" );
-                String lesson = "attack?Screen=" + parts[1] + "&menu=" + parts[2];
-                if ( parts.length > 3 ) {
-                    lesson += "&stage=" + parts[3];
-                }
+                String lesson = parts[1] + ".lesson";
                 String form = sendGet( lesson, false );
                 scan( lesson, form, attackPercent );
             } catch( Exception e ) {
@@ -127,10 +128,10 @@ public class AttackThread extends Thread {
     }
 
 
-    // "link": "#attack/3821/2000"
+    // "link": "#lesson/3821/2000"
     private List<String> parseLessons(String lessons) {
         List<String> allMatches = new ArrayList<String>();
-        Matcher m = Pattern.compile("#(attack.*?)\"").matcher(lessons);
+        Matcher m = Pattern.compile("#(lesson.*?)\"").matcher(lessons);
         while (m.find()) {
             String page = m.group();
             if(verbose) {
@@ -143,7 +144,7 @@ public class AttackThread extends Thread {
 
     
     
-    public String sendGet(String url, boolean xhr ) throws Exception {
+    public String sendGet(String url, boolean xhr ) throws IOException {
         HttpGet httpGet = new HttpGet(baseUrl + url);
 //        System.out.println( "SENDING: " + httpGet.getURI() );
         httpGet.addHeader("X-Forwarded-For", address );
@@ -166,7 +167,7 @@ public class AttackThread extends Thread {
 
     
     
-    public String sendPost(String url, List<NameValuePair> fields ) throws Exception {
+    public String sendPost(String url, List<NameValuePair> fields ) throws LoginException, IOException {
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(fields, Consts.UTF_8);
         HttpPost httpPost = new HttpPost(baseUrl + url);
         if(verbose) {
@@ -179,6 +180,13 @@ public class AttackThread extends Thread {
         watch.reset();
         watch.start();
         CloseableHttpResponse response = httpclient.execute(httpPost);
+        // check if login failed so we can stop this thread
+        if (url.equals("login")
+                && response.containsHeader("Location")
+                && response.getHeaders("Location")[0].getValue().contains("?error")) {
+            throw new LoginException(fields);
+        }
+
         String content = EntityUtils.toString(response.getEntity());
         watch.stop();
         long elapsed = watch.getTime();

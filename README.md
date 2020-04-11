@@ -29,6 +29,8 @@ There are several configurable properties that you can use to simulate a variety
 >
 >   -v verbose
 
+**Note:** Sheepdog expects an account registered on WebGoat with a username & password set to `guest2`. This is a concession for WebGoat 8 since the default `guest` account was removed and usernames/passwords with <6 characters are no longer allowed.
+
 
 ## Sample usage
 
